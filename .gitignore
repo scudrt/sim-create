@@ -1,5 +1,7 @@
 /model/*
-/choosed
+/results/*
+/result_picture/*
+/chosen_picture/*
 *.pkl
 *.png
 *.jpg
