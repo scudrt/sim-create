@@ -1,0 +1,6 @@
+/model/*
+/choosed
+*.pkl
+*.png
+*.jpg
+*.gif
