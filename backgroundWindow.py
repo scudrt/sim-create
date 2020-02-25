@@ -179,7 +179,7 @@ class backgroundWindow(QWidget):
         
         
     def backMain(self):
-        self.newWindow = main1.mainWindow()
+        self.newWindow = main.mainWindow()
         self.newWindow.show()
         self.close()
 
@@ -239,19 +239,19 @@ class backgroundWindow(QWidget):
                 if self.PicArray[i] == True:
                     if i == 0:
                         self.image = QtGui.QPixmap("result_picture\\0.png").scaled(256, 256)
-                        self.image.save("choosed_picture\\0.png")
+                        self.image.save("chosen_picture\\0.png")
                     if i == 1:
                         self.image = QtGui.QPixmap("result_picture\\1.png").scaled(256, 256)
-                        self.image.save("choosed_picture\\1.png")
+                        self.image.save("chosen_picture\\1.png")
                     if i == 2:
                         self.image = QtGui.QPixmap("result_picture\\2.png").scaled(256, 256)
-                        self.image.save("choosed_picture\\2.png")
+                        self.image.save("chosen_picture\\2.png")
                     if i == 3:
                         self.image = QtGui.QPixmap("result_picture\\3.png").scaled(256, 256)
-                        self.image.save("choosed_picture\\3.png")
+                        self.image.save("chosen_picture\\3.png")
                     if i == 4:
                         self.image = QtGui.QPixmap("result_picture\\4.png").scaled(256, 256)
-                        self.image.save("choosed_picture\\4.png")
+                        self.image.save("chosen_picture\\4.png")
 
             #此处没有填充完所有参数细化的界面
             if self.Judge == 1:

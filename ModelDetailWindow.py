@@ -23,7 +23,7 @@ class ModelDetailWindow(QWidget):
         Gs = personWindow.model_Gs
         print(Gs)
 
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
         pic_name = self.pic[0]
         global pic_num
@@ -62,9 +62,9 @@ class ModelDetailWindow(QWidget):
         self.inpic.move(300, 200)
 
 
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
-        str = "choosed_picture/" + self.pic[0]
+        str = "chosen_picture/" + self.pic[0]
         self.inpic.setPixmap(QPixmap(str))
         # 删除
         for maindir, subdir, file_name_list in os.walk(self.path):

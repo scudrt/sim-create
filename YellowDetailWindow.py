@@ -22,12 +22,12 @@ class YellowDetailWindow(QWidget):
         global Gs
         Gs = personWindow.yellow_Gs
 
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
         pic_name = self.pic[0]
         global pic_num
         pic_num = os.path.splitext(pic_name)[0]
-        # 删除choosed_picture
+        # 删除chosen_picture
         # os.remove(self.path)
 
         # 参数值
@@ -62,9 +62,9 @@ class YellowDetailWindow(QWidget):
         self.inpic.move(300, 200)
 
 
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
-        str = "choosed_picture/" + self.pic[0]
+        str = "chosen_picture/" + self.pic[0]
         self.inpic.setPixmap(QPixmap(str))
         #删除
         for maindir, subdir, file_name_list in os.walk(self.path):

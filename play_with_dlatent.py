@@ -64,7 +64,7 @@ def select_directions(Gs_network, step, pic_num, dir_flag):
     generator = Generator(Gs_network, batch_size=1, randomize_noise=False)
 
     # 在这儿选择人物的潜码，注意要与生成器相匹配。潜码来自生成目录下有个generate_codes文件夹里的txt文件。
-    face_latent = read_feature('choosed_picture/generate_code/' + pic_num + '.txt')
+    face_latent = read_feature('chosen_picture/generate_code/' + pic_num + '.txt')
     stack_latents = np.stack(face_latent for _ in range(1))
     face_dlatent = Gs_network.components.mapping.run(stack_latents, None)
 

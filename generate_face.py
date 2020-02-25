@@ -37,7 +37,7 @@ def generate(Gs):
         latents = np.random.randn(1, Gs.input_shape[1])
 
         # Save latent.
-        txt_filename = os.path.join('choosed_picture/generate_code/' + str(i) + '.txt')
+        txt_filename = os.path.join('chosen_picture/generate_code/' + str(i) + '.txt')
         file = open(txt_filename, 'w')
         text_save(file, latents)
 

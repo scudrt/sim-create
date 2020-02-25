@@ -44,9 +44,9 @@ class bkgDetailWindow(QWidget):
         self.inpic = QLabel(self)
         self.inpic.resize(256, 256)
         self.inpic.move(300, 200)
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
-        str = "choosed_picture/" + self.pic[0]
+        str = "chosen_picture/" + self.pic[0]
         self.inpic.setPixmap(QPixmap(str))
 
 
@@ -118,7 +118,7 @@ class bkgDetailWindow(QWidget):
 
     def released1(self):
         #参数细化生成代码
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
         pic_name = self.pic[0]
         pic_num = os.path.splitext(pic_name)[0]
@@ -145,9 +145,9 @@ class bkgDetailWindow(QWidget):
     def Back(self):
         # 根据参数生成结果，保存为result_picture/result.png
         # 此处为生成代码
-        self.path = "choosed_picture"
+        self.path = "chosen_picture"
         self.pic = os.listdir(self.path)
-        str = "choosed_picture/" + self.pic[0]
+        str = "chosen_picture/" + self.pic[0]
         # 删除
         for maindir, subdir, file_name_list in os.walk(self.path):
             for filename in file_name_list:

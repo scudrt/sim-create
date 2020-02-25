@@ -267,7 +267,7 @@ class personWindow(QWidget):
             self.PicArray[i] = self.IsSelectPic[i].isChecked()
 
     def backMain(self):
-        self.newWindow = main1.mainWindow()
+        self.newWindow = main.mainWindow()
         self.newWindow.show()
         self.close()
 
