@@ -328,7 +328,6 @@ class YellowDetailWindow(QWidget):
         back.setStyleSheet("QPushButton{border-image: url(src/balloon.png)}"
                             "QPushButton:hover{border-image: url(src/start.png)}")
         back.setCursor(Qt.PointingHandCursor)
-
         self.show()
 
     #颜值

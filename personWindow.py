@@ -238,11 +238,12 @@ class personWindow(QWidget):
             elif flag == 1:
                 print("进入循环~")
                 self.newWindow = ModelDetailWindow.ModelDetailWindow()
-                print("new window success!")
-                self.newWindow.show()
-                self.close()
             else:
                 QMessageBox.about(self, "提示", "抱歉，该模型暂时不支持参数调整")
+                return
+            print("new window success!")
+            self.newWindow.show()
+            self.close()
 
         if self.sum > 1:
             QMessageBox.about(self, "提示", "不能同时对多张图片进行操作")
