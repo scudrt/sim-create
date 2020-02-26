@@ -4,24 +4,37 @@ import numpy as np
 import dnnlib.tflib as tflib
 from functools import partial
 
-
 def create_stub(name, batch_size):
     return tf.constant(0, dtype='float32', shape=(batch_size, 0))
 
-
 def create_variable_for_generator(name, batch_size, tiled_dlatent, model_scale=18):
     if tiled_dlatent:
-        low_dim_dlatent = tf.get_variable('learnable_dlatents',
-            shape=(batch_size, 512),
-            dtype='float32',
-            initializer=tf.initializers.random_normal())
-        return tf.tile(tf.expand_dims(low_dim_dlatent, axis=1), [1, model_scale, 1])
+        with tf.variable_scope(name_or_scope='', reuse=tf.AUTO_REUSE):
+            low_dim_dlatent = tf.get_variable('learnable_dlatents',
+                shape=(batch_size, 512),
+                dtype='float32',
+                initializer=tf.initializers.random_normal())
+            return tf.tile(tf.expand_dims(low_dim_dlatent, axis=1), [1, model_scale, 1])
     else:
-        return tf.get_variable('learnable_dlatents',
-            shape=(batch_size, model_scale, 512),
-            dtype='float32',
-            initializer=tf.initializers.random_normal())
+        with tf.variable_scope(name_or_scope='', reuse=tf.AUTO_REUSE):
+            return tf.get_variable('learnable_dlatents',
+                shape=(batch_size, model_scale, 512),
+                dtype='float32',
+                initializer=tf.initializers.random_normal())
 
+def create_variable_for_generator1(name, batch_size, tiled_dlatent, model_scale=18):
+    with tf.variable_scope(name_or_scope='', reuse=tf.AUTO_REUSE):
+        if tiled_dlatent:
+            low_dim_dlatent = tf.get_variable('learnable_dlatents',
+                shape=(batch_size, 512),
+                dtype='float32',
+                initializer=tf.initializers.random_normal())
+            return tf.tile(tf.expand_dims(low_dim_dlatent, axis=1), [1, model_scale, 1])
+        else:
+            return tf.get_variable('learnable_dlatents',
+                shape=(batch_size, model_scale, 512),
+                dtype='float32',
+                initializer=tf.initializers.random_normal())
 
 class Generator:
     def __init__(self, model, batch_size, clipping_threshold=2, tiled_dlatent=False, model_res= 1024, randomize_noise=False):
