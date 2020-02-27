@@ -155,7 +155,6 @@ class personWindow(QWidget):
 
     def yellowGenerate(self):
         print("yellow")
-        QMessageBox.about(self, '提示', '请稍等，根据硬件条件不同，您可能需要等待至多30秒钟')
         # 调用生成模型
         global flag
         flag = 0
@@ -169,7 +168,6 @@ class personWindow(QWidget):
         #self.wait()
         #调用生成模型
         print("ancient")
-        QMessageBox.about(self, '提示', '请稍等，根据硬件条件不同，您可能需要等待至多30秒钟')
         global flag
         flag = 3
         global ancient_Gs
@@ -181,7 +179,6 @@ class personWindow(QWidget):
         #self.wait()
         #调用生成模型
         print("cartoon")
-        QMessageBox.about(self, '提示', '请稍等，根据硬件条件不同，您可能需要等待至多30秒钟')
         global flag
         flag = 2
         #QtWidgets.QApplication.processEvents()
@@ -195,7 +192,6 @@ class personWindow(QWidget):
     def supermodelGenerate(self):
         #self.wait()
         #调用生成模型
-        QMessageBox.about(self, '提示', '请稍等，根据硬件条件不同，您可能需要等待至多30秒钟')
         global flag
         flag = 1
         global model_Gs
@@ -217,6 +213,7 @@ class personWindow(QWidget):
         self.setPic()
 
     def setPic(self):
+        #这里要改写为从内存中读取
         for i in range(5):
             self.pic[i].setPixmap(QPixmap("result_picture//" + str(i) + ".png"))  # 修改显示的五张图片
 
@@ -249,6 +246,7 @@ class personWindow(QWidget):
             QMessageBox.about(self, "提示", "不能同时对多张图片进行操作")
 
     def save(self):
+        # 这里应该使用批量保存，而不是一个一个保存
         QMessageBox.about(self, "提示", "确认保存所选人物素材？")
         for i in range(0, 4):
             if self.PicArray[i] == True:

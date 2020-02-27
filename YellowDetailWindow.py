@@ -4,8 +4,9 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QLabel, QTextEdit, QToolTip, QPushButton, QFileDialog, QAction, QApplication, QDesktopWidget, QMessageBox, QCheckBox
 from PyQt5.Qt import QLineEdit
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QHBoxLayout, QSpinBox, QSlider, QLabel
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QImage
 from PyQt5.QtCore import Qt
+from PIL import Image, ImageQt
 import personWindow
 import play_with_dlatent
 import personWindow
@@ -56,7 +57,6 @@ class YellowDetailWindow(QWidget):
         title.setPixmap(QPixmap("src/detail-bg.png"))
 
         # 输入窗口
-
         self.inpic = QLabel(self)
         self.inpic.resize(256, 256)
         self.inpic.move(300, 200)
@@ -334,49 +334,54 @@ class YellowDetailWindow(QWidget):
     def released1(self):
         step = self.value1 * 0.02 * -1
         dir_flag = 1
-        play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        im = play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
     #水平角度
     def released2(self):
         step = self.value2 * 0.02
-        print("step:", step)
         dir_flag = 2
-        play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        im = play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
     #性别
     def released3(self):
         step = self.value3 * 0.05
         dir_flag = 3
-        play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        im = play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
     #白种人
     def released4(self):
         step = self.value4 * 0.07
         dir_flag = 4
-        play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        im = play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
     #黑种人
     def released5(self):
         step = self.value5 * 0.03
         dir_flag = 5
-        play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        im = play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
     #表情
     def released6(self):
         step = self.value6 * 0.04
         dir_flag = 6
-        play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        im = play_with_dlatent.select_directions(Gs, step, pic_num, dir_flag)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
     def backPerson(self):

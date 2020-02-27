@@ -8,10 +8,7 @@ import dnnlib.tflib as tflib
 import multiprocessing
 import time
 
-
-
 synthesis_kwargs = dict(output_transform=dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True), minibatch_size=8)
-
 
 def text_save(file, data):  # save generate code, which can be modified to generate customized style
     for i in range(len(data[0])):
@@ -92,8 +89,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
 

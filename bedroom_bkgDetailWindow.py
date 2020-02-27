@@ -3,7 +3,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QLabel, QTextEdit, QToolTip, QPushButton, QFileDialog, QAction, QApplication, QDesktopWidget, QMessageBox, QCheckBox
 from PyQt5.Qt import QLineEdit
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QHBoxLayout, QSpinBox, QSlider, QLabel
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QImage
 from PyQt5.QtCore import Qt
 import backgroundWindow
 import os
@@ -124,9 +124,10 @@ class bkgDetailWindow(QWidget):
         pic_num = os.path.splitext(pic_name)[0]
         slider = self.splider.value()
         #print(slider)
-        generate_background.generate_bg(1, backgroundWindow.bedroom_Gs, pic_num, slider)
+        im = generate_background.generate_bg(1, backgroundWindow.bedroom_Gs, pic_num, slider)
+        qimage = QImage(im.tobytes('raw', 'RGB'), im.size[0], im.size[1], QImage.Format_RGB888)
         # 将result.png显示在outpic
-        self.outpic.setPixmap(QPixmap('result_picture/result.png'))
+        self.outpic.setPixmap(QPixmap(qimage))
         self.outpic.setScaledContents(True)
 
 

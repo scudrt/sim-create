@@ -27,7 +27,7 @@ def generate_image(latent_vector, generator):
     img = PIL.Image.fromarray(img_array, 'RGB')
     return img
 
-def move_latent_and_save(latent_vector, direction, coeffs, generator):
+def move_latent(latent_vector, direction, coeffs, generator):
     '''latent_vector是人脸潜编码，direction是人脸调整方向，coeffs是变化步幅的向量，generator是生成器'''
     for i, coeff in enumerate(coeffs):
         new_latent_vector = latent_vector.copy()
@@ -35,20 +35,10 @@ def move_latent_and_save(latent_vector, direction, coeffs, generator):
         result = generate_image(new_latent_vector, generator)
 
         # 显示图片
-        #plt.imshow(result)
-        #plt.show()
-        result.save('result_picture/result.png')
-
-def select_directions(dir_flag):
-    path = {
-        1: 'latent_directions/beauty.npy',
-        2: 'latent_directions/angle_horizontal.npy',
-        3: 'latent_directions/gender.npy',
-        4: 'latent_directions/race_white.npy',
-        5: 'latent_directions/race_black.npy',
-        6: 'latent_directions/smile.npy'
-    }
-    return path.get(dir_flag, None)
+        # plt.imshow(result)
+        # plt.show()
+        # result.save('result_picture/result.png')
+    return result
 
 def face_model():
     # 在这儿选择生成器
@@ -69,29 +59,24 @@ def select_directions(Gs_network, step, pic_num, dir_flag):
     face_dlatent = Gs_network.components.mapping.run(stack_latents, None)
 
     print("dir_flag", dir_flag)
-    # 从6个编辑向量中选择一个
-    if dir_flag == 1:
-        path = 'latent_directions/beauty.npy'
-    if dir_flag == 2:
-        path = 'latent_directions/angle_horizontal.npy'
-    if dir_flag == 3:
-        path = 'latent_directions/gender.npy'
-    if dir_flag == 4:
-        path = 'latent_directions/race_white.npy'
-    if dir_flag == 5:
-        path = 'latent_directions/race_black.npy'
-    if dir_flag == 6:
-        path = 'latent_directions/smile.npy'
-    if dir_flag == 7:
-        path = 'latent_directions/race_yellow.npy'
-    #path = select_directions(dir_flag) 此处非常奇怪 2020/2/9不能调用该函数== 故用了蠢方法
-    direction = np.load(path)
+    
+    paths = [
+        'latent_directions/beauty.npy',
+        'latent_directions/angle_horizontal.npy',
+        'latent_directions/gender.npy',
+        'latent_directions/race_white.npy',
+        'latent_directions/race_black.npy',
+        'latent_directions/smile.npy',
+        'latent_directions/race_yellow.npy'
+    ]
+    direction = np.load(paths[dir_flag-1])
 
     # 在这儿选择调整的大小，向量里面的值表示调整幅度，可以自行编辑，对于每个值都会生成一张图片并保存。
     coeffs = [step]
     # 开始调整并保存图片
-    move_latent_and_save(face_dlatent, direction, coeffs, generator)
+    newImage = move_latent(face_dlatent, direction, coeffs, generator)
     print("save successfully")
+    return newImage
 
 
 def main():

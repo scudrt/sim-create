@@ -1,3 +1,11 @@
+'''
+TODO:
+生成图片列表中间保存问题
+打开模型的速度尝试优化
+参数调整完善
+*打开日漫模型生成再进入黄种人的参数调整会崩溃(xxx层不存在)
+一个一个保存太麻烦
+'''
 import sys
 import personWindow
 import backgroundWindow

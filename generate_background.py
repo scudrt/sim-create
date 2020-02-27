@@ -120,9 +120,7 @@ def generate_bg(type, Gs, pic_num, slider):
         images = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)
 
         # Save image.
-        os.makedirs(config.result_dir, exist_ok=True)
-        png_filename = ( 'result_picture/result.png')
-        PIL.Image.fromarray(images[0], 'RGB').save(png_filename)
+        return PIL.Image.fromarray(images[0])
 
 
 
