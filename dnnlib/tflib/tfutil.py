@@ -19,6 +19,13 @@ TfExpression = Union[tf.Tensor, tf.Variable, tf.Operation]
 TfExpressionEx = Union[TfExpression, int, float, np.ndarray]
 """A type that can be converted to a valid Tensorflow expression."""
 
+sess = None
+
+def reset_session():
+    global sess
+    sess.close()
+    tf.reset_default_graph()
+    create_session(force_as_default = True)
 
 def run(*args, **kwargs) -> Any:
     """Run the specified ops in the default session."""
@@ -118,7 +125,6 @@ def init_tf(config_dict: dict = None) -> None:
     # Create default TensorFlow session.
     create_session(cfg, force_as_default=True)
 
-
 def assert_tf_initialized():
     """Check that TensorFlow session has been initialized."""
     if tf.get_default_session() is None:
@@ -146,6 +152,8 @@ def create_session(config_dict: dict = None, force_as_default: bool = False) -> 
         session._default_session.enforce_nesting = False
         session._default_session.__enter__() # pylint: disable=no-member
 
+    global sess
+    sess = session
     return session
 
 

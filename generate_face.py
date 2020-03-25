@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 import PIL.Image
 import dnnlib.tflib as tflib
+import tensorflow as tf
 import multiprocessing
 import time
 
@@ -22,57 +23,55 @@ def select_path(model_flag):
         2: 'model/generator_anime.pkl',
         3: 'model/generator_ancient.pkl'
     }
-    return path.get(model_flag, None)
+    return path[model_flag]
 
 def generate(Gs):
     # Prepare result folder
+    print('正在生成...')
     result_dir = 'result_picture'
     os.makedirs(result_dir, exist_ok=True)
     os.makedirs(result_dir + '/generate_code', exist_ok=True)
+    result_pics = []
+    result_latents = []
     for i in range(5):
         # Generate latent.
         latents = np.random.randn(1, Gs.input_shape[1])
+        result_latents.append(latents)
 
         # Save latent.
-        txt_filename = os.path.join('chosen_picture/generate_code/' + str(i) + '.txt')
-        file = open(txt_filename, 'w')
-        text_save(file, latents)
+        # txt_filename = os.path.join('chosen_picture/generate_code/' + str(i) + '.txt')
+        # file = open(txt_filename, 'w')
+        # text_save(file, latents)
 
         # Generate image.
         fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
         images = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)
 
         # Save image.
-        png_filename = os.path.join(result_dir, str(i) + '.png')
-        test = PIL.Image.fromarray(images[0], 'RGB')
-        print(type(test))
-        test.save(png_filename)
+        # png_filename = os.path.join(result_dir, str(i) + '.png')
+        im = PIL.Image.fromarray(images[0], 'RGB')
+        result_pics.append(im)
+        print('picture ' + str(i) + ' generated')
+        # test.save(png_filename)
+    return result_pics, result_latents
 
-        # Close file.
-        file.close()
-
-#def face_select(model_flag):
 def face_select(model_flag):
-    # Initialize TensorFlow.
-    time_start1 = time.time()#第一段开始计时
-    tflib.init_tf()
-    time_end1 = time.time()#第一段结束计时
-    time1 = time_end1 - time_start1
-    print('initiate_time_cost:', time1, 's')
-
+    global is_first_time
     # Select and load pre-trained network through model_flag
+    time_start = time.time()
+
+    tflib.reset_session()
 
     model_path = select_path(model_flag)
 
-    time_start2 = time.time()  # 第二段开始计时
     with open(model_path, "rb") as f:
         _G, _D, Gs = pickle.load(f, encoding='latin1')
-    time_end2 = time.time()  # 第二段结束计时
-    time2 = time_end2 - time_start2
-    print('open_model_time_cost:', time2, 's')
+
+    print('加载时间:', time.time() - time_start, 's')
 
     # Print network details.
     # Gs.print_layers()
+
     return Gs
 
 def func1(Gs):

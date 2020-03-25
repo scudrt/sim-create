@@ -8,21 +8,6 @@ def create_stub(name, batch_size):
     return tf.constant(0, dtype='float32', shape=(batch_size, 0))
 
 def create_variable_for_generator(name, batch_size, tiled_dlatent, model_scale=18):
-    if tiled_dlatent:
-        with tf.variable_scope(name_or_scope='', reuse=tf.AUTO_REUSE):
-            low_dim_dlatent = tf.get_variable('learnable_dlatents',
-                shape=(batch_size, 512),
-                dtype='float32',
-                initializer=tf.initializers.random_normal())
-            return tf.tile(tf.expand_dims(low_dim_dlatent, axis=1), [1, model_scale, 1])
-    else:
-        with tf.variable_scope(name_or_scope='', reuse=tf.AUTO_REUSE):
-            return tf.get_variable('learnable_dlatents',
-                shape=(batch_size, model_scale, 512),
-                dtype='float32',
-                initializer=tf.initializers.random_normal())
-
-def create_variable_for_generator1(name, batch_size, tiled_dlatent, model_scale=18):
     with tf.variable_scope(name_or_scope='', reuse=tf.AUTO_REUSE):
         if tiled_dlatent:
             low_dim_dlatent = tf.get_variable('learnable_dlatents',
@@ -37,7 +22,7 @@ def create_variable_for_generator1(name, batch_size, tiled_dlatent, model_scale=
                 initializer=tf.initializers.random_normal())
 
 class Generator:
-    def __init__(self, model, batch_size, clipping_threshold=2, tiled_dlatent=False, model_res= 1024, randomize_noise=False):
+    def __init__(self, model, batch_size, clipping_threshold=2, tiled_dlatent=False, model_res=1024, randomize_noise=False):
         self.batch_size = batch_size
         self.tiled_dlatent=tiled_dlatent
         self.model_scale = int(2*(math.log(model_res,2)-1)) # For example, 1024 -> 18
@@ -54,8 +39,7 @@ class Generator:
             model.components.synthesis.run(self.initial_dlatents,
                 randomize_noise=randomize_noise, minibatch_size=self.batch_size,
                 custom_inputs=[partial(create_variable_for_generator, batch_size=batch_size, tiled_dlatent=False, model_scale=self.model_scale),
-                                                partial(create_stub, batch_size=batch_size)],
-                structure='fixed')
+                                                partial(create_stub, batch_size=batch_size)])
 
         self.dlatent_avg_def = model.get_var('dlatent_avg')
         self.reset_dlatent_avg()

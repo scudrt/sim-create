@@ -1,14 +1,12 @@
 '''
 TODO:
-生成图片列表中间保存问题
-打开模型的速度尝试优化
-参数调整完善
-*打开日漫模型生成再进入黄种人的参数调整会崩溃(xxx层不存在)
-一个一个保存太麻烦
+重新选择候选向量/发明新向量？
+拼接上色功能
 '''
 import sys
 import personWindow
 import backgroundWindow
+import dnnlib.tflib as tflib
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
@@ -17,19 +15,19 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QTextEdit, QToolTip,
 from PyQt5.QtGui import QIcon, QColor, QPixmap, QFont
 from PyQt5.Qt import QLineEdit
 
-
 class mainWindow(QWidget):
     def __init__(self):
         super().__init__()
-
+        tflib.init_tf()
         self.initUI()
+        print('init done')
 
     def initUI(self):
         # 窗口大小、居中显示、标题
         col = QColor(0, 0, 0)
         self.resize(1200, 800)
         self.center()
-        self.setWindowTitle('MyWindow')
+        self.setWindowTitle('Sim-Create')
         # 禁止拉伸窗口大小
         self.setFixedSize(self.width(), self.height())
 
@@ -121,9 +119,8 @@ class mainWindow(QWidget):
         temp_frame.moveCenter(temp_CenterPoint)
         self.move(temp_frame.topLeft())
 
-
 if __name__ == '__main__':
-        # 创建应用程序和对象
-        app = QApplication(sys.argv)
-        ex = mainWindow()
-        sys.exit(app.exec_())
+    # 创建应用程序和对象
+    app = QApplication(sys.argv)
+    ex = mainWindow()
+    sys.exit(app.exec_())

@@ -1,12 +1,11 @@
 import sys
-import YellowDetailWindow
-import ModelDetailWindow
+import DetailWindow
 from PyQt5 import QtGui, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (QWidget, QLabel, QTextEdit, QToolTip,
                              QPushButton, QFileDialog, QAction, QApplication, QDesktopWidget, QMessageBox, QCheckBox,
                              QDialog)
-from PyQt5.QtGui import QIcon, QColor, QPixmap, QFont, QMovie
+from PyQt5.QtGui import QIcon, QColor, QPixmap, QFont, QMovie, QImage
 from PyQt5.Qt import QLineEdit
 import generate_face
 import dnnlib.tflib as tflib
@@ -14,13 +13,18 @@ import multiprocessing
 import time
 import main
 
-global flag  #标记点击的标签，便于刷新操作
-flag = 1000
-global Gs
+#标记点击的标签，便于刷新操作
+flag = -1
+pic_num = 0
+yellow_Gs = None
+model_Gs = None
+cartoon_Gs = None
+ancient_Gs = None
 
 class personWindow(QWidget):
     def __init__(self):
         super().__init__()
+
         self.waitWin = waitWindow()
 
         self.initUI()
@@ -29,7 +33,7 @@ class personWindow(QWidget):
         # 窗口大小、居中显示、标题
         self.resize(1200, 800)
         self.center()
-        self.setWindowTitle('人像生成')
+        self.setWindowTitle('Sim-Create: 人像生成')
         self.setAttribute(Qt.WA_TranslucentBackground)
         # 禁止拉伸窗口大小
         self.setFixedSize(self.width(), self.height())
@@ -93,7 +97,7 @@ class personWindow(QWidget):
         self.IsSelectPic = [0] * 5
         for i in range(5):
             self.IsSelectPic[i] = QCheckBox(' ', self)
-            self.IsSelectPic[i].resize(25, 25)
+            self.IsSelectPic[i].resize(50, 50)
             self.IsSelectPic[i].move(217 + 233 * i, 530)
             self.IsSelectPic[i].stateChanged.connect(self.SelectPicture)
             self.IsSelectPic[i].setCursor(Qt.PointingHandCursor)
@@ -109,14 +113,14 @@ class personWindow(QWidget):
         self.back.clicked.connect(self.backMain)
 
         # 参数细化
-        self.next = QPushButton("参数细化", self)
-        self.next.resize(100, 50)
-        self.next.move(550, 620)
-        self.next.setFont(QFont("黑体"))
-        self.next.setStyleSheet('color:rgb(255, 255, 255);font-size: 25px;background-color: transparent;')
-        self.next.setCursor(Qt.PointingHandCursor)
+        self.toDetailButton = QPushButton("参数细化", self)
+        self.toDetailButton.resize(100, 50)
+        self.toDetailButton.move(550, 620)
+        self.toDetailButton.setFont(QFont("黑体"))
+        self.toDetailButton.setStyleSheet('color:rgb(255, 255, 255);font-size: 25px;background-color: transparent;')
+        self.toDetailButton.setCursor(Qt.PointingHandCursor)
         # 跳转到参数细化
-        self.next.clicked.connect(self.Next)
+        self.toDetailButton.clicked.connect(self.toDetail)
 
         # 保存图片
         save = QPushButton("保存图片", self)
@@ -128,12 +132,11 @@ class personWindow(QWidget):
         # 保存图片
         save.clicked.connect(self.save)
 
-
         refresh = QPushButton("刷新", self)
-        refresh.resize(60, 20)
+        refresh.resize(80, 30)
         refresh.move(1100, 320)
         refresh.setFont(QFont("黑体"))
-        refresh.setStyleSheet('color:rgb(150, 150, 150);font-size: 15px;background-color: transparent;')
+        refresh.setStyleSheet('color:rgb(150, 150, 150);font-size: 30px;background-color: transparent;')
         refresh.setCursor(Qt.PointingHandCursor)
             # 保存图片
         refresh.clicked.connect(self.refresh)
@@ -141,106 +144,155 @@ class personWindow(QWidget):
 
     # 刷新的响应事件
     def refresh(self):
+        global flag
+        if flag == -1:
+            return
+        global yellow_Gs, model_Gs, cartoon_Gs, ancient_Gs
         # 这里加生成图片的代码
-        print(flag)
-        if flag == 0:
-            generate_face.generate(yellow_Gs)
-        if flag == 1:
-            generate_face.generate(model_Gs)
-        if flag == 2:
-            generate_face.generate(cartoon_Gs)
-        if flag == 3:
-            generate_face.generate(ancient_Gs)
-        self.setPic()
+        models = [yellow_Gs, model_Gs, cartoon_Gs, ancient_Gs]
+        g_model = models[flag]
+        pics, latents = generate_face.generate(g_model)
+        self.set_pic(pics)
+        self.set_latents(latents)
 
     def yellowGenerate(self):
-        print("yellow")
         # 调用生成模型
         global flag
-        flag = 0
         global yellow_Gs
-        yellow_Gs = generate_face.face_select(0)
-        generate_face.generate(yellow_Gs)
-        # self.waitWin.close()
-        self.setPic()
-
-    def ancientGenerate(self):
-        #self.wait()
-        #调用生成模型
-        print("ancient")
-        global flag
-        flag = 3
-        global ancient_Gs
-        ancient_Gs = generate_face.face_select(3)
-        generate_face.generate(ancient_Gs)
-        self.setPic()
-
-    def cartoonGenerate(self):
-        #self.wait()
-        #调用生成模型
-        print("cartoon")
-        global flag
-        flag = 2
-        #QtWidgets.QApplication.processEvents()
-        #self.waitWin.show()
-        global cartoon_Gs
-        cartoon_Gs = generate_face.face_select(2)
-        generate_face.generate(cartoon_Gs)
-        #self.waitWin.close()
-        self.setPic()
+        if (flag != 0):
+            flag = 0
+            yellow_Gs = generate_face.face_select(0)
+        pics, latents = generate_face.generate(yellow_Gs)
+        self.set_pic(pics)
+        self.set_latents(latents)
 
     def supermodelGenerate(self):
         #self.wait()
         #调用生成模型
         global flag
-        flag = 1
         global model_Gs
-        model_Gs = generate_face.face_select(1)
-        generate_face.generate(model_Gs)
-        self.setPic()
+        if (flag != 1):
+            flag = 1
+            model_Gs = generate_face.face_select(1)
+        pics, latents = generate_face.generate(model_Gs)
+        self.set_pic(pics)
+        self.set_latents(latents)
+
+    def cartoonGenerate(self):
+        #self.wait()
+        #调用生成模型
+        global flag
+        global cartoon_Gs
+        if (flag != 2):
+            flag = 2
+            cartoon_Gs = generate_face.face_select(2)
+        pics, latents = generate_face.generate(cartoon_Gs)
+        self.set_pic(pics)
+        self.set_latents(latents)
+
+    def ancientGenerate(self):
+        #self.wait()
+        #调用生成模型
+        global flag
+        global ancient_Gs
+        if (flag != 3):
+            flag = 3
+            ancient_Gs = generate_face.face_select(3)
+        pics, latents = generate_face.generate(ancient_Gs)
+        self.set_pic(pics)
+        self.set_latents(latents)
 
     '''def wait(self):
         self.waitWin.show()
         self.timer = QTimer(self)  # 初始化一个定时器
         self.timer.timeout.connect(self.operate)  # 计时结束调用operate()方法
-        self.timer.start(1000)  # 设置计时间隔并启动'''
+        self.timer.start(1000)  # 设置计时间隔并启动
 
     def operate(self):
         # 每隔1000ms检测flag值是否为1
         # 若为1，关闭定时器，关闭加载动画，开始加载图片
         self.timer.stop()
         self.waitWin.close()
-        self.setPic()
+        self.set_pic()
+    '''
 
-    def setPic(self):
-        #这里要改写为从内存中读取
+    def set_latents(self, latents):
+        self.latents = latents[:]
+
+    def set_pic(self, pics):
+        self.imgs = []
         for i in range(5):
-            self.pic[i].setPixmap(QPixmap("result_picture//" + str(i) + ".png"))  # 修改显示的五张图片
+            img = QImage(pics[i].tobytes('raw', 'RGB'), pics[i].size[0], pics[i].size[1], QImage.Format_RGB888)
+            self.imgs.append(img)
+            self.pic[i].setPixmap(QPixmap(img))  # 修改显示的五张图片
 
-    #进行参数细化
-    def Next(self):
-        print(flag)
+    #进入参数调整界面
+    def toDetail(self):
+        global flag
+        global pic_num
+        if flag == -1:
+            QMessageBox.about(self, "提示", "您还没有生成图像")
+            return
         if self.sum == 0:
              #没有选中图片
              QMessageBox.about(self, "提示", "选中图片不能为空")
-
         if self.sum == 1:
             #打开新窗口进行参数细化,并将选择的图片放入文件夹保存
             for i in range(5):
                 if self.PicArray[i] == True:
-                    self.image = QtGui.QPixmap("result_picture\\" + str(i) + ".png").scaled(256, 256)
-                    self.image.save("chosen_picture\\" + str(i) + ".png")
-            if flag == 0:
-                self.newWindow = YellowDetailWindow.YellowDetailWindow()
-            elif flag == 1:
-                print("进入循环~")
-                self.newWindow = ModelDetailWindow.ModelDetailWindow()
+                    pic_num = i
+                    self.imgs[i].save("chosen_picture\\" + str(i) + ".png")
+                    break
+            if flag == 0: #黄种人
+                self.newWindow = DetailWindow.DetailWindow(
+                    self,
+                    'Sim-Create: 调整界面',
+                    yellow_Gs,
+                    1024,
+                    ['age', 'gender', 'angle_vertical', 'angle_horizontal', 'eyes_open', 'width'],
+                    [-0.05, 0.05, 0.05, 0.05, 0.05, -0.05],
+                    self.imgs[pic_num],
+                    self.latents[i]
+                )
+            elif flag == 1: #超模
+                self.newWindow = DetailWindow.DetailWindow(
+                    self,
+                    'Sim-Create: 调整界面',
+                    model_Gs,
+                    1024,
+                    ['angle_vertical', 'angle_horizontal', 'gender', 'race_yellow', 'race_black', 'emotion_happy'],
+                    [0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+                    self.imgs[pic_num],
+                    self.latents[i]
+                )
+            elif flag == 2: #动漫，向量待修改
+                self.newWindow = DetailWindow.DetailWindow(
+                    self,
+                    'Sim-Create: 调整界面',
+                    cartoon_Gs,
+                    512,
+                    ['angle_vertical', 'angle_horizontal', 'eyes_open', 'glasses', 'emotion_happy', 'emotion_fear'],
+                    [-0.05, 0.05, 0.05, 0.05, 0.05, -0.05],
+                    self.imgs[pic_num],
+                    self.latents[i]
+                )
+            elif flag == 3: #古风测试
+                self.newWindow = DetailWindow.DetailWindow(
+                    self,
+                    'Sim-Create: 调整界面',
+                    ancient_Gs,
+                    512,
+                    ['angle_vertical', 'angle_horizontal', 'eyes_open', 'glasses', 'emotion_happy', 'emotion_fear'],
+                    [-0.05, 0.05, 0.05, 0.05, 0.05, -0.05],
+                    self.imgs[pic_num],
+                    self.latents[i]
+                )
             else:
                 QMessageBox.about(self, "提示", "抱歉，该模型暂时不支持参数调整")
                 return
-            print("new window success!")
+            self.setDisabled(True)
             self.newWindow.show()
-            self.close()
+            # self.close()
 
         if self.sum > 1:
             QMessageBox.about(self, "提示", "不能同时对多张图片进行操作")

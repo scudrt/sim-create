@@ -15,7 +15,6 @@ import dnnlib
 import dnnlib.tflib as tflib
 import config
 
-
 #存储每个图片的latents
 def save_latents(i, latents):
     if i == 0:
@@ -80,13 +79,13 @@ def generate_bg(type, Gs, pic_num, slider):
         for i in range(5):
             # Pick latent vector.
             rnd = np.random.RandomState(None)
-            print(i)
             latents = rnd.randn(1, Gs.input_shape[1])
+            print(i)
 
             # Save latent.
-            #txt_filename = os.path.join('chosen_picture/generate_code/' + str(i) + '.txt')
-            #file = open(txt_filename, 'w')
-            #text_save(file, latents)
+            txt_filename = os.path.join('chosen_picture/generate_code/' + str(i) + '.txt')
+            file = open(txt_filename, 'w')
+            text_save(file, latents)
             save_latents(i, latents)
 
             # Generate image.
@@ -123,12 +122,9 @@ def generate_bg(type, Gs, pic_num, slider):
         return PIL.Image.fromarray(images[0])
 
 
-
 #选择读入哪个模型
 def bg_select(model_flag):
-    # Initialize TensorFlow.
-    tflib.init_tf()
-
+    tflib.reset_session()
     # Load pre-trained network.
     # url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
     #mypath = os.path.abspath('results\\00000-sgan-realface-1gpu\\network-snapshot-000140.pkl')
@@ -141,7 +137,6 @@ def bg_select(model_flag):
         # Gs = Long-term average of the generator. Yields higher-quality results than the instantaneous snapshot.
 
     # Print network details.
-    Gs.print_layers()
     #generate_bg(1, Gs, '1', 26)
     return Gs
 

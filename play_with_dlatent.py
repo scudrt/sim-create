@@ -5,6 +5,19 @@ import dnnlib.tflib as tflib
 from util.generator_model import Generator
 import matplotlib.pyplot as plt
 
+model = 0
+model_res = 0
+latent = []
+dlatent = []
+
+#初始化调参变量
+def init(_model, _latent, _res):
+    global model, model_res, latent, dlatent
+    model = _model
+    model_res = _res
+    latent = _latent
+    dlatent = []
+
 def read_feature(file_name):
     file = open(file_name, mode='r')
     # 使用readlines() 读取所有行的数据，会返回一个列表，列表中存放的数据就是每一行的内容
@@ -21,7 +34,7 @@ def read_feature(file_name):
     return code
 
 def generate_image(latent_vector, generator):
-    latent_vector = latent_vector.reshape((1, 18, 512))
+    # latent_vector = latent_vector.reshape((1, 18, 512))
     generator.set_dlatents(latent_vector)
     img_array = generator.generate_images()[0]
     img = PIL.Image.fromarray(img_array, 'RGB')
@@ -29,63 +42,40 @@ def generate_image(latent_vector, generator):
 
 def move_latent(latent_vector, direction, coeffs, generator):
     '''latent_vector是人脸潜编码，direction是人脸调整方向，coeffs是变化步幅的向量，generator是生成器'''
+    k = min(len(latent_vector[0]), len(direction))
     for i, coeff in enumerate(coeffs):
-        new_latent_vector = latent_vector.copy()
-        new_latent_vector[:8] = (latent_vector + coeff*direction)[:8]
-        result = generate_image(new_latent_vector, generator)
-
-        # 显示图片
-        # plt.imshow(result)
-        # plt.show()
-        # result.save('result_picture/result.png')
+        print('step ' + str(coeff))
+        latent_vector[:] = (latent_vector + coeff*direction[:k])[:]
+        result = generate_image(latent_vector, generator)
     return result
 
-def face_model():
-    # 在这儿选择生成器
-    tflib.init_tf()
-    print("open model")
-    with open('model/animeface.pkl', "rb") as f:
-        generator_network, discriminator_network, Gs_network = pickle.load(f)
-    generator = Generator(Gs_network, batch_size=1, randomize_noise=False)
-    return Gs_network
-
 #Gs_network来自原生成模型.pkl；step传入coeffs表示调整的幅度；pic_num表示选择第几张图片；dir_flag选择调整的方向
-def select_directions(Gs_network, step, pic_num, dir_flag):
-    generator = Generator(Gs_network, batch_size=1, randomize_noise=False)
+def select_directions(dir_path, step):
+    global dlatent, latent, model, model_res
 
-    # 在这儿选择人物的潜码，注意要与生成器相匹配。潜码来自生成目录下有个generate_codes文件夹里的txt文件。
-    face_latent = read_feature('chosen_picture/generate_code/' + pic_num + '.txt')
-    stack_latents = np.stack(face_latent for _ in range(1))
-    face_dlatent = Gs_network.components.mapping.run(stack_latents, None)
-
-    print("dir_flag", dir_flag)
+    if len(dlatent) == 0:
+        dlatent = model.components.mapping.run(np.array(latent), None)
     
-    paths = [
-        'latent_directions/beauty.npy',
-        'latent_directions/angle_horizontal.npy',
-        'latent_directions/gender.npy',
-        'latent_directions/race_white.npy',
-        'latent_directions/race_black.npy',
-        'latent_directions/smile.npy',
-        'latent_directions/race_yellow.npy'
-    ]
-    direction = np.load(paths[dir_flag-1])
+    direction = np.load(dir_path)
+    
+    print(latent)
+    print(dlatent)
+    print(direction)
 
-    # 在这儿选择调整的大小，向量里面的值表示调整幅度，可以自行编辑，对于每个值都会生成一张图片并保存。
+    #调整幅度
     coeffs = [step]
-    # 开始调整并保存图片
-    newImage = move_latent(face_dlatent, direction, coeffs, generator)
-    print("save successfully")
-    return newImage
 
+    #生成器，不知道为什么第一次调参会导致图像发生一定变形
+    generator = Generator(model, batch_size=1, model_res=model_res, randomize_noise=False)
+
+    newImage = move_latent(dlatent, direction, coeffs, generator)
+    return newImage
 
 def main():
     Gs = face_model()
     for i in range(3):
         select_directions(Gs, 1, 2)
         print("save successfully", i)
-
-
 
 if __name__ == "__main__":
     main()
